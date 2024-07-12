@@ -39,6 +39,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { OutputFileEntry } from "@uploadcare/react-uploader";
+import UploadcareUploader from "../components/UploadcareUploader";
 
 interface Product {
   id: number;
@@ -49,67 +51,14 @@ interface Product {
   stockQuantity: number;
   description: string;
   ratings: number;
+  subTitle?: string;
 }
-
-const products: Product[] = [
-  {
-    id: 1,
-    image: "/placeholder.svg",
-    name: "Wireless Headphones",
-    price: 99.99,
-    category: "Electronics",
-    stockQuantity: 10,
-    description:
-      "High-quality wireless headphones with noise-cancelling features.",
-    ratings: 4.5,
-  },
-  {
-    id: 2,
-    image: "/placeholder.svg",
-    name: "Leather Backpack",
-    price: 79.99,
-    category: "Bags",
-    stockQuantity: 5,
-    description:
-      "Genuine leather backpack with multiple compartments and padded straps.",
-    ratings: 4.0,
-  },
-  {
-    id: 3,
-    image: "/placeholder.svg",
-    name: "Outdoor Camping Gear",
-    price: 149.99,
-    category: "Outdoors",
-    stockQuantity: 3,
-    description: "Complete set of camping gear for outdoor adventures.",
-    ratings: 4.8,
-  },
-  {
-    id: 4,
-    image: "/placeholder.svg",
-    name: "Organic Cotton T-Shirt",
-    price: 29.99,
-    category: "Clothing",
-    stockQuantity: 20,
-    description: "100% organic cotton t-shirt for everyday wear.",
-    ratings: 4.2,
-  },
-  {
-    id: 5,
-    image: "/placeholder.svg",
-    name: "Smart Home Hub",
-    price: 59.99,
-    category: "Electronics",
-    stockQuantity: 8,
-    description:
-      "Central hub for controlling smart home devices with voice commands.",
-    ratings: 4.6,
-  },
-];
 
 export default function ProductManagement() {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [files, setFiles] = useState<OutputFileEntry[]>([]);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const form = useForm<Product>({
     defaultValues: {
@@ -119,6 +68,7 @@ export default function ProductManagement() {
       description: "",
       category: "",
       ratings: 0,
+      subTitle: "",
     },
   });
 
@@ -135,10 +85,22 @@ export default function ProductManagement() {
   };
 
   const onSubmit = (data: Product) => {
-    console.log("New product data:", data);
-    // Implement actual create logic here
+    if (editingProduct) {
+      console.log("Updating product:", { ...editingProduct, ...data });
+      // Implement actual update logic here
+    } else {
+      console.log("Creating new product:", data);
+      // Implement actual create logic here
+    }
     setIsSheetOpen(false);
+    setEditingProduct(null);
     form.reset();
+  };
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+    form.reset(product);
+    setIsSheetOpen(true);
   };
 
   return (
@@ -147,15 +109,38 @@ export default function ProductManagement() {
         <h1 className="text-2xl font-bold">Products</h1>
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
-            <Button size="sm">Create New Product</Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                setEditingProduct(null);
+                form.reset({
+                  name: "",
+                  price: 0,
+                  stockQuantity: 0,
+                  description: "",
+                  category: "",
+                  ratings: 0,
+                  subTitle: "",
+                });
+              }}
+            >
+              Create New Product
+            </Button>
           </SheetTrigger>
-          <SheetContent>
+          <SheetContent className="overflow-y-scroll">
             <SheetHeader>
-              <SheetTitle>Create New Product</SheetTitle>
+              <SheetTitle>
+                {editingProduct ? "Edit Product" : "Create New Product"}
+              </SheetTitle>
               <SheetDescription>
-                Fill in the details to add a new product.
+                {editingProduct
+                  ? "Edit the details of the existing product."
+                  : "Fill in the details to add a new product."}
               </SheetDescription>
             </SheetHeader>
+            <div className="pt-6">
+              <UploadcareUploader files={files} setFiles={setFiles} />
+            </div>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -169,6 +154,19 @@ export default function ProductManagement() {
                       <FormLabel>Name</FormLabel>
                       <FormControl>
                         <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="subTitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subtitle</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -263,7 +261,9 @@ export default function ProductManagement() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Create Product</Button>
+                <Button type="submit">
+                  {editingProduct ? "Update Product" : "Create Product"}
+                </Button>
               </form>
             </Form>
           </SheetContent>
@@ -297,7 +297,11 @@ export default function ProductManagement() {
                 <TableCell>{product.category}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(product)}
+                    >
                       Edit
                     </Button>
                     <AlertDialog>
@@ -337,3 +341,59 @@ export default function ProductManagement() {
     </div>
   );
 }
+
+const products: Product[] = [
+  {
+    id: 1,
+    image: "/placeholder.svg",
+    name: "Wireless Headphones",
+    price: 99.99,
+    category: "Electronics",
+    stockQuantity: 10,
+    description:
+      "High-quality wireless headphones with noise-cancelling features.",
+    ratings: 4.5,
+  },
+  {
+    id: 2,
+    image: "/placeholder.svg",
+    name: "Leather Backpack",
+    price: 79.99,
+    category: "Bags",
+    stockQuantity: 5,
+    description:
+      "Genuine leather backpack with multiple compartments and padded straps.",
+    ratings: 4.0,
+  },
+  {
+    id: 3,
+    image: "/placeholder.svg",
+    name: "Outdoor Camping Gear",
+    price: 149.99,
+    category: "Outdoors",
+    stockQuantity: 3,
+    description: "Complete set of camping gear for outdoor adventures.",
+    ratings: 4.8,
+  },
+  {
+    id: 4,
+    image: "/placeholder.svg",
+    name: "Organic Cotton T-Shirt",
+    price: 29.99,
+    category: "Clothing",
+    stockQuantity: 20,
+    description: "100% organic cotton t-shirt for everyday wear.",
+    ratings: 4.2,
+  },
+  {
+    id: 5,
+    image: "/placeholder.svg",
+    name: "Smart Home Hub",
+    price: 59.99,
+    category: "Electronics",
+    stockQuantity: 8,
+    description:
+      "Central hub for controlling smart home devices with voice commands.",
+    ratings: 4.6,
+  },
+];

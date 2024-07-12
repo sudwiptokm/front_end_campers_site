@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="bg-muted py-8 md:py-12">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="space-y-2">
+        <div className="space-y-2 text-center md:text-left">
           <h3 className="text-lg font-semibold">Contact Us</h3>
           <div className="space-y-1 text-muted-foreground">
             <p>123 Main Street</p>
@@ -43,7 +43,7 @@ export default function Footer() {
             <span className="sr-only">LinkedIn</span>
           </Link>
         </div>
-        <div className="space-y-2 text-right">
+        <div className="space-y-2 md:text-right text-center">
           <h3 className="text-lg font-semibold">Quick Links</h3>
           <div className="space-y-1 flex flex-col">
             <Link

@@ -5,6 +5,8 @@ import App from "./App.tsx";
 import ErrorPage from "./components/ErrorPage.tsx";
 import TestComponent from "./components/TestComponent.tsx";
 import "./index.css";
+import AboutUsPage from "./pages/AboutUs.tsx";
+import CartPage from "./pages/Cart.tsx";
 import Home from "./pages/Home.tsx";
 import IndividualProduct from "./pages/IndividualProduct.tsx";
 import ProductManagement from "./pages/ProductManagement.tsx";
@@ -27,6 +29,14 @@ const router = createBrowserRouter([
       {
         path: "/management",
         element: <ProductManagement />,
+      },
+      {
+        path: "/cart",
+        element: <CartPage />,
+      },
+      {
+        path: "/about-us",
+        element: <AboutUsPage />,
       },
       {
         path: "/product/:id",
