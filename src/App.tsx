@@ -6,9 +6,10 @@ import Header from "./components/Header";
 import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { fetchProducts } from "./redux/features/product/productThunk";
-import { useAppDispatch } from "./redux/hooks";
+import { useAppDispatch, useAppSelector } from "./redux/hooks";
 
 import { motion } from "framer-motion";
+import { selectTotalQuantity } from "./redux/features/cart/cartSelector";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -17,6 +18,23 @@ function App() {
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  const hasUnsavedChanges = useAppSelector(selectTotalQuantity) > 0;
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   return (
     <AnimatePresence mode="wait">
