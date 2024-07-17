@@ -1,0 +1,15 @@
+figure {
+  width: "auto";
+  height: "auto";
+  background-repeat: no-repeat;
+}
+
+figure:hover img {
+  opacity: 0;
+}
+
+.img_zoom {
+  display: block;
+  width: 100%;
+  cursor: zoom-in;
+}

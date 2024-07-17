@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft } from "lucide-react";
 import { Badge } from "../components/ui/badge";
 import { toast } from "../components/ui/use-toast";
+import Zoom from "../components/ui/zoom";
 import { incrementQuantity } from "../redux/features/cart/cartSlice";
 import { getIndividualProduct } from "../redux/features/product/productSelector";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
@@ -41,13 +42,14 @@ export default function IndividualProduct() {
     <div className="grid md:grid-cols-2 gap-6 lg:gap-12 items-start max-w-6xl px-4 md:px-6 mx-auto py-6">
       <div className="grid gap-4 md:gap-8">
         <div className="grid gap-4">
-          <img
+          {/* <img
             src={productData?.imgId}
             alt={productData?.name}
             width={600}
             height={600}
             className="aspect-square object-cover border w-full rounded-lg overflow-hidden"
-          />
+          /> */}
+          <Zoom src={productData?.imgId!} />
         </div>
       </div>
       <div className="grid gap-4 md:gap-8">
