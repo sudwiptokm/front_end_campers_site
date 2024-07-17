@@ -1,5 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Facebook,
   Instagram,
@@ -10,9 +8,9 @@ import {
   Twitter,
 } from "lucide-react";
 
-import GoogleMapReact from "google-map-react";
-
-const AnyReactComponent = ({ text }: { text: string }) => <div>{text}</div>;
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "../components/ui/separator";
 
 const AboutUs = () => {
   const teamMembers = [
@@ -27,10 +25,11 @@ const AboutUs = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">About Us</h1>
+      <h1 className="text-4xl font-bold text-center mb-4">About Us</h1>
+      <Separator className="mb-8" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <Card>
+        <div>
           <CardHeader>
             <CardTitle>Contact Information</CardTitle>
           </CardHeader>
@@ -50,71 +49,110 @@ const AboutUs = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
 
-        <Card>
+          <CardHeader>
+            <CardTitle>Our Mission</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg">
+              At our core, we are committed to delivering exceptional products
+              and services that enhance the lives of our customers. We strive to
+              innovate, inspire, and create positive change in our community
+              while maintaining the highest standards of quality and customer
+              satisfaction.
+            </p>
+          </CardContent>
+
+          <CardContent className="flex flex-row items-center gap-x-3">
+            <Facebook className="text-blue-600 hover:text-blue-800 cursor-pointer" />
+            <Twitter className="text-blue-400 hover:text-blue-600 cursor-pointer" />
+            <Instagram className="text-pink-600 hover:text-pink-800 cursor-pointer" />
+            <Linkedin className="text-blue-700 hover:text-blue-900 cursor-pointer" />
+          </CardContent>
+        </div>
+
+        <div>
           <CardHeader>
             <CardTitle>Our Location</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="aspect-video">
-              <GoogleMapReact
-                bootstrapURLKeys={{ key: "" }}
-                defaultCenter={{
-                  lat: 23.8041,
-                  lng: 90.4152,
-                }}
-                defaultZoom={11}
+              <iframe
+                width="100%"
+                height="600"
+                scrolling="no"
+                src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Dhaka,%20Bangladesh+(Camper's%20Den)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"
               >
-                <AnyReactComponent text="My Marker" />
-              </GoogleMapReact>
+                <a href="https://www.gps.ie/">gps devices</a>
+              </iframe>
             </div>
           </CardContent>
-        </Card>
+        </div>
       </div>
 
-      <Card className="mb-12">
-        <CardHeader>
-          <CardTitle>Our Mission</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-lg">
-            At our core, we are committed to delivering exceptional products and
-            services that enhance the lives of our customers. We strive to
-            innovate, inspire, and create positive change in our community while
-            maintaining the highest standards of quality and customer
-            satisfaction.
-          </p>
-        </CardContent>
-      </Card>
-
-      <h2 className="text-3xl font-semibold mb-6">Meet Our Team</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        {teamMembers.map((member, index) => (
-          <Card key={index}>
-            <CardContent className="flex flex-col items-center pt-6">
-              <Avatar className="w-24 h-24 mb-4">
-                <AvatarImage src={member.image} alt={member.name} />
-                <AvatarFallback>
-                  {member.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </AvatarFallback>
+      <section className="container py-10">
+        <div className="space-y-4">
+          <h2 className="text-3xl font-bold text-center">Meet Our Team</h2>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 pt-4">
+            <div className="flex flex-col items-center space-y-2">
+              <Avatar>
+                <AvatarImage src="/placeholder-user.jpg" />
+                <AvatarFallback>JD</AvatarFallback>
               </Avatar>
-              <h3 className="text-xl font-semibold">{member.name}</h3>
-              <p className="text-sm text-gray-500">{member.role}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="flex justify-center space-x-4">
-        <Facebook className="text-blue-600 hover:text-blue-800 cursor-pointer" />
-        <Twitter className="text-blue-400 hover:text-blue-600 cursor-pointer" />
-        <Instagram className="text-pink-600 hover:text-pink-800 cursor-pointer" />
-        <Linkedin className="text-blue-700 hover:text-blue-900 cursor-pointer" />
-      </div>
+              <div className="text-center">
+                <h3 className="text-lg font-medium">John Doe</h3>
+                <p className="text-muted-foreground">CEO</p>
+                <p className="text-sm text-muted-foreground">
+                  John has over 15 years of experience in the industry and is
+                  passionate about building sustainable businesses.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col items-center space-y-2">
+              <Avatar>
+                <AvatarImage src="/placeholder-user.jpg" />
+                <AvatarFallback>JA</AvatarFallback>
+              </Avatar>
+              <div className="text-center">
+                <h3 className="text-lg font-medium">Jane Appleseed</h3>
+                <p className="text-muted-foreground">COO</p>
+                <p className="text-sm text-muted-foreground">
+                  Jane has a background in operations and is dedicated to
+                  streamlining our processes.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col items-center space-y-2">
+              <Avatar>
+                <AvatarImage src="/placeholder-user.jpg" />
+                <AvatarFallback>SM</AvatarFallback>
+              </Avatar>
+              <div className="text-center">
+                <h3 className="text-lg font-medium">Sarah Musk</h3>
+                <p className="text-muted-foreground">CTO</p>
+                <p className="text-sm text-muted-foreground">
+                  Sarah is a tech visionary who leads our engineering team in
+                  developing innovative solutions.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col items-center space-y-2">
+              <Avatar>
+                <AvatarImage src="/placeholder-user.jpg" />
+                <AvatarFallback>MJ</AvatarFallback>
+              </Avatar>
+              <div className="text-center">
+                <h3 className="text-lg font-medium">Michael Johnson</h3>
+                <p className="text-muted-foreground">CFO</p>
+                <p className="text-sm text-muted-foreground">
+                  Michael brings a wealth of financial expertise to our
+                  leadership team.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

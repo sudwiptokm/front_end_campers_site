@@ -1,3 +1,6 @@
+import { MinusCircle, PlusCircle, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,61 +29,65 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MinusCircle, PlusCircle, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  CartItem,
+  decrementQuantity,
+  incrementQuantity,
+  removeProductFromCart,
+  updateQuantityByAmount,
+} from "../redux/features/cart/cartSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  stock: number;
-  image: string;
-}
+// interface CartItem {
+//   id: number;
+//   name: string;
+//   price: number;
+//   quantity: number;
+//   stock: number;
+//   image: string;
+// }
 
-const initialCartItems: CartItem[] = [
-  {
-    id: 1,
-    name: "Wireless Headphones",
-    price: 99.99,
-    quantity: 1,
-    stock: 10,
-    image: "/placeholder.svg",
-  },
-  {
-    id: 2,
-    name: "Leather Backpack",
-    price: 79.99,
-    quantity: 2,
-    stock: 5,
-    image: "/placeholder.svg",
-  },
-  {
-    id: 3,
-    name: "Smart Home Hub",
-    price: 59.99,
-    quantity: 1,
-    stock: 0,
-    image: "/placeholder.svg",
-  },
-];
+// const initialCartItems: CartItem[] = [
+//   {
+//     id: 1,
+//     name: "Wireless Headphones",
+//     price: 99.99,
+//     quantity: 1,
+//     stock: 10,
+//     image: "/placeholder.svg",
+//   },
+//   {
+//     id: 2,
+//     name: "Leather Backpack",
+//     price: 79.99,
+//     quantity: 2,
+//     stock: 5,
+//     image: "/placeholder.svg",
+//   },
+//   {
+//     id: 3,
+//     name: "Smart Home Hub",
+//     price: 59.99,
+//     quantity: 1,
+//     stock: 0,
+//     image: "/placeholder.svg",
+//   },
+// ];
 
-export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+function CartPage() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const cart_items = useAppSelector((state) => state.cart.items);
+
+  useEffect(() => {
+    setCartItems(cart_items);
+    console.log(cart_items);
+  }, [cart_items]);
+
+  const [cartItems, setCartItems] = useState<CartItem[]>(cart_items);
   const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
-
-  const updateQuantity = (id: number, newQuantity: number) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: Math.min(Math.max(1, newQuantity), item.stock),
-            }
-          : item
-      )
-    );
-  };
 
   const removeItem = (item: CartItem) => {
     setItemToRemove(item);
@@ -88,9 +95,10 @@ export default function CartPage() {
 
   const confirmRemove = () => {
     if (itemToRemove) {
-      setCartItems((items) =>
-        items.filter((item) => item.id !== itemToRemove.id)
-      );
+      // setCartItems((items) =>
+      //   items.filter((item) => item._id !== itemToRemove._id)
+      // );
+      dispatch(removeProductFromCart(itemToRemove));
       setItemToRemove(null);
     }
   };
@@ -121,19 +129,23 @@ export default function CartPage() {
             </TableHeader>
             <TableBody>
               {cartItems.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow key={item._id}>
                   <TableCell>
                     <div className="flex items-center space-x-3">
                       <img
-                        src={item.image}
+                        src={item.imgId}
                         alt={item.name}
                         className="w-12 h-12 rounded-md"
                       />
                       <span>
                         {item.name} <br />{" "}
-                        {item.stock === 0 && (
+                        {item.stock === 0 ? (
                           <span className="text-destructive text-xs">
                             (Out of Stock)
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">
+                            Stock: {item.stock}
                           </span>
                         )}{" "}
                       </span>
@@ -145,9 +157,7 @@ export default function CartPage() {
                       <Button
                         size="icon"
                         variant="outline"
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
-                        }
+                        onClick={() => dispatch(decrementQuantity(item))}
                         disabled={item.quantity <= 1}
                       >
                         <MinusCircle className="h-4 w-4" />
@@ -156,7 +166,17 @@ export default function CartPage() {
                         type="number"
                         value={item.quantity}
                         onChange={(e) =>
-                          updateQuantity(item.id, parseInt(e.target.value))
+                          dispatch(
+                            updateQuantityByAmount({
+                              payload: item,
+                              amount:
+                                parseInt(e.target.value) > item.stock
+                                  ? item.stock
+                                  : parseInt(e.target.value) < 1
+                                  ? 1
+                                  : parseInt(e.target.value),
+                            })
+                          )
                         }
                         className="w-16 text-center"
                         min={1}
@@ -165,9 +185,7 @@ export default function CartPage() {
                       <Button
                         size="icon"
                         variant="outline"
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
+                        onClick={() => dispatch(incrementQuantity(item))}
                         disabled={
                           item.quantity === item.stock || item.stock === 0
                         }
@@ -225,7 +243,13 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping:</span>
-                  <span>$0.00</span>
+                  <span>
+                    {" "}
+                    <span className="text-muted-foreground text-[10px]">
+                      {calculateTotal() > 199.99 ? "(Free Shipping)" : ""}
+                    </span>{" "}
+                    ${calculateTotal() > 199.99 ? "0.00" : "9.99"}
+                  </span>
                 </div>
                 <div className="flex justify-between font-bold">
                   <span>Total:</span>
@@ -237,6 +261,7 @@ export default function CartPage() {
               <Button
                 className="w-full"
                 disabled={isOutOfStock || cartItems.length === 0}
+                onClick={() => navigate("/checkout")}
               >
                 {isOutOfStock ? "Some Items Out of Stock" : "Place Order"}
               </Button>
@@ -247,3 +272,5 @@ export default function CartPage() {
     </div>
   );
 }
+
+export default CartPage;

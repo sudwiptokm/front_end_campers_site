@@ -1,108 +1,99 @@
+import { Link, useNavigate } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { incrementQuantity } from "../../redux/features/cart/cartSlice";
+import { getFeaturedProducts } from "../../redux/features/product/productSelector";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 
 export default function FeaturedProducts() {
+  const products = useAppSelector(getFeaturedProducts);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   return (
-    <section className="bg-background py-12 md:py-16 lg:py-20">
+    <section className="bg-background py-12 md:py-16">
       <div className="container px-4 md:px-6">
-        <div className="flex flex-col items-center gap-6 md:gap-8">
-          <div className="grid gap-1 text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
-              Featured Products
-            </h2>
-            <p className="text-muted-foreground md:text-lg">
-              Discover our top-selling and most popular products.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <div className="relative overflow-hidden rounded-lg shadow-lg group">
-              <Link to="#" className="absolute inset-0 z-10">
-                <span className="sr-only">View Product</span>
-              </Link>
+        <div className="mb-8 md:mb-12">
+          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center">
+            High-end gear for your next adventure
+          </h1>
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {products.map((product, id) => (
+            <div
+              className="relative overflow-hidden rounded-lg shadow-lg group hover:shadow-xl hover:-translate-y-2 transition-all duration-300 ease-in-out"
+              key={id}
+            >
+              <div
+                onClick={() => {
+                  navigate(`/product/${product._id}`);
+                }}
+                className="absolute inset-0 z-10"
+              >
+                <span className="sr-only">View</span>
+              </div>
               <img
-                src="https://images.unsplash.com/photo-1592388748465-8c4dca8dd703?q=80&w=1587&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="Ultralight Backpack"
-                width={400}
-                height={300}
-                className="object-cover w-full h-60"
+                src={product.imgId}
+                alt={product.name}
+                width={500}
+                height={400}
+                className="object-cover w-full h-64"
               />
-              <div className="p-4 bg-background">
-                <h3 className="text-lg font-semibold">Ultralight Backpack</h3>
+              <div className="p-4 bg-background relative z-20">
+                <h3 className="text-xl font-bold">{product.name}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Comfortable, spacious, perfect for long hikes.
+                  {product.subtitle}
                 </p>
-                <Button size="sm" variant="outline" className="mt-4">
-                  View Details
-                </Button>
+                <div className="flex items-center justify-between mt-4">
+                  <span className="text-lg font-semibold">
+                    ${product.price}
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevents the event from bubbling up to the parent div
+                      dispatch(incrementQuantity(product));
+                      toast(`${product.name} added to cart`);
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
               </div>
             </div>
-            <div className="relative overflow-hidden rounded-lg shadow-lg group">
-              <Link to="#" className="absolute inset-0 z-10">
-                <span className="sr-only">View Product</span>
-              </Link>
-              <img
-                src="https://images.unsplash.com/photo-1508873696983-2dfd5898f08b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fFRlbnR8ZW58MHx8MHx8fDA%3D"
-                alt="All-Weather Tent"
-                width={400}
-                height={300}
-                className="object-cover w-full h-60"
-              />
-              <div className="p-4 bg-background">
-                <h3 className="text-lg font-semibold">All-Weather Tent</h3>
-                <p className="text-sm text-muted-foreground">
-                  Durable, waterproof, ideal for any camping condition.
-                </p>
-                <Button size="sm" variant="outline" className="mt-4">
-                  View Details
-                </Button>
-              </div>
-            </div>
-            <div className="relative overflow-hidden rounded-lg shadow-lg group">
-              <Link to="#" className="absolute inset-0 z-10">
-                <span className="sr-only">View Product</span>
-              </Link>
-              <img
-                src="https://images.unsplash.com/photo-1525858907241-d230b66fb9fa?q=80&w=1549&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="Portable Charger"
-                width={400}
-                height={300}
-                className="object-cover w-full h-60"
-              />
-              <div className="p-4 bg-background">
-                <h3 className="text-lg font-semibold">Portable Charger</h3>
-                <p className="text-sm text-muted-foreground">
-                  Charges devices, eco-friendly, perfect for off-grid
-                  adventures.
-                </p>
-                <Button size="sm" variant="outline" className="mt-4">
-                  View Details
-                </Button>
-              </div>
-            </div>
-            <div className="relative overflow-hidden rounded-lg shadow-lg group">
-              <Link to="#" className="absolute inset-0 z-10">
-                <span className="sr-only">View Product</span>
-              </Link>
-              <img
-                src="https://images.unsplash.com/photo-1523976246010-56d9a0d2ee66?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="Travel Tool Kit"
-                width={400}
-                height={300}
-                className="object-cover w-full h-60"
-              />
-              <div className="p-4 bg-background">
-                <h3 className="text-lg font-semibold">Travel Tool Kit</h3>
-                <p className="text-sm text-muted-foreground">
-                  Versatile, compact, essential for any outdoor activity.
-                </p>
-                <Button size="sm" variant="outline" className="mt-4">
-                  View Details
-                </Button>
-              </div>
-            </div>
-          </div>
+          ))}
+        </div>
+        <div className="flex justify-center mt-8 md:mt-12">
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          >
+            View More
+            <ArrowRightIcon className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </section>
+  );
+}
+
+function ArrowRightIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
   );
 }

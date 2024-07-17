@@ -16,7 +16,10 @@ export default function ProductCategories() {
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 xl:gap-8">
           <div className="relative group grid [grid-template-areas:stack] overflow-hidden rounded-lg">
-            <Link to="#" className="absolute inset-0 z-10">
+            <Link
+              to="/products?category=Camping"
+              className="absolute inset-0 z-10"
+            >
               <span className="sr-only">View</span>
             </Link>
             <img
@@ -36,7 +39,10 @@ export default function ProductCategories() {
             </div>
           </div>
           <div className="relative group grid [grid-template-areas:stack] overflow-hidden rounded-lg">
-            <Link to="#" className="absolute inset-0 z-10">
+            <Link
+              to="/products?category=Accessories"
+              className="absolute inset-0 z-10"
+            >
               <span className="sr-only">View</span>
             </Link>
             <img
@@ -56,7 +62,10 @@ export default function ProductCategories() {
             </div>
           </div>
           <div className="relative group grid [grid-template-areas:stack] overflow-hidden rounded-lg">
-            <Link to="#" className="absolute inset-0 z-10">
+            <Link
+              to="/products?category=Apparels"
+              className="absolute inset-0 z-10"
+            >
               <span className="sr-only">View</span>
             </Link>
             <img
@@ -76,22 +85,25 @@ export default function ProductCategories() {
             </div>
           </div>
           <div className="relative group grid [grid-template-areas:stack] overflow-hidden rounded-lg">
-            <Link to="#" className="absolute inset-0 z-10">
+            <Link
+              to="/products?category=Electronics"
+              className="absolute inset-0 z-10"
+            >
               <span className="sr-only">View</span>
             </Link>
             <img
-              src="https://plus.unsplash.com/premium_photo-1661311950994-d263ea9681a1?q=80&w=1587&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="Navigation Tools"
+              src="https://images.unsplash.com/photo-1503221043305-f7498f8b7888?q=80&w=1453&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              alt="Travel Tech"
               width={300}
               height={300}
               className="[grid-area:stack] object-cover w-full aspect-square"
             />
             <div className="flex-1 [grid-area:stack] bg-black/70 group-hover:opacity-90 transition-opacity text-white p-6 justify-end flex flex-col gap-2">
               <h3 className="font-semibold text-lg tracking-tight">
-                Navigation Tools
+                Travel Tech
               </h3>
               <p className="text-sm leading-snug">
-                Maps, compasses, and GPS devices for explorers
+                Camera, compasses, and GPS devices for explorers
               </p>
             </div>
           </div>

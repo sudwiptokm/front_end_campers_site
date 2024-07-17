@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import {
@@ -39,74 +39,152 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { OutputFileEntry } from "@uploadcare/react-uploader";
-import UploadcareUploader from "../components/UploadcareUploader";
 
-interface Product {
-  id: number;
-  image: string;
-  name: string;
-  price: number;
-  category: string;
-  stockQuantity: number;
-  description: string;
-  ratings: number;
-  subTitle?: string;
-}
+import { shallowEqual } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import UploadcareUploader from "../components/UploadcareUploader";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  addProduct,
+  deleteProduct,
+  updateProduct,
+} from "../redux/features/product/productThunk";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { ProductTypeWithID } from "../schemas";
 
 export default function ProductManagement() {
-  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [files, setFiles] = useState<OutputFileEntry[]>([]);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const products = useAppSelector((state) => state.product, shallowEqual);
 
-  const form = useForm<Product>({
+  console.log({ products });
+
+  const navigate = useNavigate();
+
+  const [productToDelete, setProductToDelete] =
+    useState<ProductTypeWithID | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [files, setFiles] = useState<string | null>(null);
+  const [editingProduct, setEditingProduct] =
+    useState<ProductTypeWithID | null>(null);
+
+  const form = useForm<ProductTypeWithID>({
     defaultValues: {
       name: "",
       price: 0,
-      stockQuantity: 0,
+      stock: 0,
       description: "",
       category: "",
-      ratings: 0,
-      subTitle: "",
+      rating: 0,
+      subtitle: "",
+      promotion: undefined,
     },
   });
 
-  const handleDelete = (product: Product) => {
+  useEffect(() => {
+    if (files) {
+      form.setValue("imgId", files);
+    }
+  }, [files]);
+
+  useEffect(() => {
+    if (!isSheetOpen) {
+      setFiles(null);
+    }
+  }, [isSheetOpen]);
+
+  const dispatch = useAppDispatch();
+
+  const handleDelete = (product: ProductTypeWithID) => {
     setProductToDelete(product);
   };
 
-  const confirmDelete = () => {
+  // Adding a product
+  const addNewProduct = async (productData: Omit<ProductTypeWithID, "_id">) => {
+    try {
+      await dispatch(addProduct(productData)).unwrap();
+      toast.success("Product added successfully");
+    } catch (error: any) {
+      console.error(`Failed to add product: ${error.message}`);
+      toast.error(`Failed to add product: ${error.message}`);
+    }
+  };
+
+  // Updating a product
+  const updateExistingProduct = async (productData: ProductTypeWithID) => {
+    try {
+      await dispatch(updateProduct(productData)).unwrap();
+      toast.success("Product updated successfully");
+    } catch (error: any) {
+      console.error(`Failed to update product: ${error.message}`);
+      toast.error(`Failed to update product: ${error.message}`);
+    }
+  };
+
+  // Deleting a product
+  const confirmDeleteProduct = async (productId: string) => {
+    try {
+      await dispatch(deleteProduct(productId)).unwrap();
+      toast.success("Product deleted successfully");
+    } catch (error: any) {
+      console.error(`Failed to delete product: ${error.message}`);
+      toast.error(`Failed to delete product: ${error.message}`);
+    }
+  };
+
+  const confirmDelete = async () => {
     if (productToDelete) {
       console.log("Deleting product:", productToDelete);
       // Implement actual delete logic here
+      // axios.delete(
+      //   `${import.meta.env.VITE_API_URL}/api/products/${productToDelete._id}`
+      // );
+      // dispatch(removeProduct(productToDelete._id));
+      confirmDeleteProduct(productToDelete._id);
     }
     setProductToDelete(null);
   };
 
-  const onSubmit = (data: Product) => {
+  const onSubmit = async (data: ProductTypeWithID) => {
     if (editingProduct) {
       console.log("Updating product:", { ...editingProduct, ...data });
       // Implement actual update logic here
+      // axios.put(
+      //   `${import.meta.env.VITE_API_URL}/api/products/${editingProduct._id}`,
+      //   data
+      // );
+      // dispatch(updateProduct(data));
+      updateExistingProduct(data);
     } else {
       console.log("Creating new product:", data);
-      // Implement actual create logic here
+      // const res = await axios.post(
+      //   `${import.meta.env.VITE_API_URL}/api/products`,
+      //   data
+      // );
+      // dispatch(addProduct(res.data));
+      addNewProduct(data);
     }
     setIsSheetOpen(false);
     setEditingProduct(null);
     form.reset();
   };
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = (product: ProductTypeWithID) => {
     setEditingProduct(product);
     form.reset(product);
+    setFiles(product.imgId!);
     setIsSheetOpen(true);
   };
 
   return (
     <div className="w-full px-4 md:px-6">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Products</h1>
+        <h1 className="text-2xl font-bold">Products ({products.length})</h1>
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button
@@ -116,11 +194,11 @@ export default function ProductManagement() {
                 form.reset({
                   name: "",
                   price: 0,
-                  stockQuantity: 0,
+                  stock: 0,
                   description: "",
                   category: "",
-                  ratings: 0,
-                  subTitle: "",
+                  rating: 0,
+                  subtitle: "",
                 });
               }}
             >
@@ -161,7 +239,7 @@ export default function ProductManagement() {
                 />
                 <FormField
                   control={form.control}
-                  name="subTitle"
+                  name="subtitle"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Subtitle</FormLabel>
@@ -193,7 +271,7 @@ export default function ProductManagement() {
                 />
                 <FormField
                   control={form.control}
-                  name="stockQuantity"
+                  name="stock"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Stock Quantity</FormLabel>
@@ -239,15 +317,15 @@ export default function ProductManagement() {
                 <FormField
                   control={form.control}
                   rules={{
-                    required: "Ratings are required",
+                    required: "rating are required",
                     validate: (value) =>
                       (value >= 0 && value <= 5) ||
-                      "Ratings must be between 0 and 5",
+                      "rating must be between 0 and 5",
                   }}
-                  name="ratings"
+                  name="rating"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ratings</FormLabel>
+                      <FormLabel>Rating</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -256,6 +334,29 @@ export default function ProductManagement() {
                             field.onChange(parseFloat(e.target.value))
                           }
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="promotion"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Promotion</FormLabel>
+                      <FormControl>
+                        <Select {...field}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose Promotion" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="top_selling">
+                              Top Selling
+                            </SelectItem>
+                            <SelectItem value="featured">Featured</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -281,19 +382,19 @@ export default function ProductManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.map((product) => (
-              <TableRow key={product.id}>
+            {products.map((product, idx) => (
+              <TableRow key={product._id || idx}>
                 <TableCell>
                   <img
-                    src={product.image}
+                    src={product.imgId}
                     alt={product.name}
                     width={64}
                     height={64}
-                    className="rounded-md object-cover"
+                    className="rounded-md object-cover w-12 h-12"
                   />
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell>${product.price.toFixed(2)}</TableCell>
+                <TableCell>${product.price}</TableCell>
                 <TableCell>{product.category}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
@@ -341,59 +442,3 @@ export default function ProductManagement() {
     </div>
   );
 }
-
-const products: Product[] = [
-  {
-    id: 1,
-    image: "/placeholder.svg",
-    name: "Wireless Headphones",
-    price: 99.99,
-    category: "Electronics",
-    stockQuantity: 10,
-    description:
-      "High-quality wireless headphones with noise-cancelling features.",
-    ratings: 4.5,
-  },
-  {
-    id: 2,
-    image: "/placeholder.svg",
-    name: "Leather Backpack",
-    price: 79.99,
-    category: "Bags",
-    stockQuantity: 5,
-    description:
-      "Genuine leather backpack with multiple compartments and padded straps.",
-    ratings: 4.0,
-  },
-  {
-    id: 3,
-    image: "/placeholder.svg",
-    name: "Outdoor Camping Gear",
-    price: 149.99,
-    category: "Outdoors",
-    stockQuantity: 3,
-    description: "Complete set of camping gear for outdoor adventures.",
-    ratings: 4.8,
-  },
-  {
-    id: 4,
-    image: "/placeholder.svg",
-    name: "Organic Cotton T-Shirt",
-    price: 29.99,
-    category: "Clothing",
-    stockQuantity: 20,
-    description: "100% organic cotton t-shirt for everyday wear.",
-    ratings: 4.2,
-  },
-  {
-    id: 5,
-    image: "/placeholder.svg",
-    name: "Smart Home Hub",
-    price: 59.99,
-    category: "Electronics",
-    stockQuantity: 8,
-    description:
-      "Central hub for controlling smart home devices with voice commands.",
-    ratings: 4.6,
-  },
-];

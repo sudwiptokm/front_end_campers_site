@@ -1,21 +1,49 @@
+import { SVGProps } from "react";
+import { Link, useParams } from "react-router-dom";
+import { JSX } from "react/jsx-runtime";
+
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { SVGProps } from "react";
-import { useParams } from "react-router-dom";
-import { JSX } from "react/jsx-runtime";
+
+import { ArrowLeft } from "lucide-react";
 import { Badge } from "../components/ui/badge";
+import { toast } from "../components/ui/use-toast";
+import { incrementQuantity } from "../redux/features/cart/cartSlice";
+import { getIndividualProduct } from "../redux/features/product/productSelector";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 
 export default function IndividualProduct() {
   const params = useParams<{ id: string }>();
-  console.log({ params });
+  const dispatch = useAppDispatch();
+
+  const productData = useAppSelector((state) =>
+    getIndividualProduct(state, params.id!)
+  );
+
+  if (!productData) {
+    return (
+      <div className="flex-1 w-full h-full items-center justify-center flex flex-col space-y-6">
+        <h1>Product not found</h1>
+        <Link to="/products" className="mt-4">
+          <Button>
+            {" "}
+            <span>
+              <ArrowLeft />
+            </span>{" "}
+            Go back to products
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="grid md:grid-cols-2 gap-6 lg:gap-12 items-start max-w-6xl px-4 md:px-6 mx-auto py-6">
       <div className="grid gap-4 md:gap-8">
         <div className="grid gap-4">
           <img
-            src="/placeholder.svg"
-            alt="Product Image"
+            src={productData?.imgId}
+            alt={productData?.name}
             width={600}
             height={600}
             className="aspect-square object-cover border w-full rounded-lg overflow-hidden"
@@ -24,58 +52,65 @@ export default function IndividualProduct() {
       </div>
       <div className="grid gap-4 md:gap-8">
         <div className="grid gap-2">
-          <h1 className="text-3xl font-bold">Acme Prism T-Shirt</h1>
+          <h1 className="text-3xl font-bold">{productData?.name}</h1>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5">
-              <StarIcon className="w-5 h-5 fill-primary" />
-              <StarIcon className="w-5 h-5 fill-primary" />
-              <StarIcon className="w-5 h-5 fill-primary" />
-              <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-              <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
+              {/* Star icons */}
+              {Array.from({ length: 5 }).map((_, index) => (
+                <StarIcon
+                  key={index}
+                  className={`w-5 h-5 ${
+                    index < Math.round(productData?.rating!)
+                      ? "fill-primary"
+                      : "fill-muted"
+                  }`}
+                />
+              ))}
             </div>
-            <span className="text-sm text-muted-foreground">(12 reviews)</span>
+            <span className="text-sm text-muted-foreground">
+              {productData?.rating} (12 reviews)
+            </span>
           </div>
         </div>
         <div className="grid gap-2">
-          <p className="text-muted-foreground">
-            60% combed ringspun cotton/40% polyester jersey tee.
-          </p>
+          <p className="text-muted-foreground">{productData?.subtitle}</p>
           <div className="flex items-center gap-4">
             <Badge variant="outline" className="px-2 py-1">
-              In Stock
+              {productData?.stock! > 0 ? "In" : "Out of"} Stock
             </Badge>
             <div className="flex items-center gap-1">
               <PackageIcon className="w-5 h-5 text-muted-foreground" />
               <span className="text-muted-foreground">
-                Only 10 left in stock
+                Only {productData?.stock} left in stock
               </span>
             </div>
             <div className="flex items-center gap-1">
               <TagIcon className="w-5 h-5 text-muted-foreground" />
-              <span className="text-muted-foreground">Clothing</span>
+              <span className="text-muted-foreground">
+                {productData?.category}
+              </span>
             </div>
           </div>
         </div>
         <div className="grid gap-2">
-          <h2 className="text-2xl font-bold">$99.99</h2>
-          <Button size="lg" className="w-full">
+          <h2 className="text-2xl font-bold">${productData?.price}</h2>
+          <Button
+            size="lg"
+            className="w-full"
+            onClick={() => {
+              dispatch(incrementQuantity(productData!));
+              toast({
+                title: "Success",
+                description: `${productData!.name} added to cart`,
+              });
+            }}
+          >
             Add to Cart
           </Button>
         </div>
         <Separator />
         <div className="grid gap-4 text-sm leading-loose">
-          <p>
-            Introducing the Acme Prism T-Shirt, a perfect blend of style and
-            comfort for the modern individual. This tee is crafted with a
-            meticulous composition of 60% combed ringspun cotton and 40%
-            polyester jersey, ensuring a soft and breathable fabric that feels
-            gentle against the skin.
-          </p>
-          <p>
-            The design of the Acme Prism T-Shirt is as striking as it is
-            comfortable. The shirt features a unique prism-inspired pattern that
-            adds a modern and eye-catching touch to your ensemble.
-          </p>
+          <p>{productData?.description}</p>
         </div>
       </div>
     </div>

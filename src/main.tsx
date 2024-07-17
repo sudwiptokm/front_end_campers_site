@@ -1,16 +1,23 @@
+import "./index.css";
+
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+import { Toaster } from "sonner";
 import App from "./App.tsx";
 import ErrorPage from "./components/ErrorPage.tsx";
 import TestComponent from "./components/TestComponent.tsx";
-import "./index.css";
 import AboutUsPage from "./pages/AboutUs.tsx";
 import CartPage from "./pages/Cart.tsx";
+import CheckoutPage from "./pages/Checkout.tsx";
 import Home from "./pages/Home.tsx";
 import IndividualProduct from "./pages/IndividualProduct.tsx";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage.tsx";
 import ProductManagement from "./pages/ProductManagement.tsx";
 import ProductsPage from "./pages/Products.tsx";
+import { store } from "./redux/store.ts";
 
 const router = createBrowserRouter([
   {
@@ -35,8 +42,16 @@ const router = createBrowserRouter([
         element: <CartPage />,
       },
       {
+        path: "/checkout",
+        element: <CheckoutPage />,
+      },
+      {
         path: "/about-us",
         element: <AboutUsPage />,
+      },
+      {
+        path: "/success",
+        element: <OrderConfirmationPage />,
       },
       {
         path: "/product/:id",
@@ -52,6 +67,9 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+    <Toaster />
   </React.StrictMode>
 );

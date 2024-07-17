@@ -7,10 +7,15 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ShoppingCart } from "lucide-react";
+import { selectTotalQuantity } from "../redux/features/cart/cartSelector";
+import { useAppSelector } from "../redux/hooks";
 
 export default function Header() {
+  const totalCart = useAppSelector(selectTotalQuantity);
+
   return (
-    <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
+    <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6 justify-between">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="lg:hidden">
@@ -19,9 +24,9 @@ export default function Header() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
-          <Link to="#">
-            <ShirtIcon className="h-6 w-6" />
-            <span className="sr-only">ShadCN</span>
+          <Link to="/" className="justify-center flex">
+            <img src={"/images/logo.png"} width={96} />
+            <span className="sr-only">Logo</span>
           </Link>
           <div className="grid gap-2 py-6">
             <Link
@@ -57,9 +62,9 @@ export default function Header() {
           </div>
         </SheetContent>
       </Sheet>
-      <Link to="#" className="mr-6 hidden lg:flex">
-        <ShirtIcon className="h-6 w-6" />
-        <span className="sr-only">ShadCN</span>
+      <Link to="/" className="mr-6 hidden lg:flex">
+        <img src={"/images/logo.png"} width={96} />
+        <span className="sr-only">Logo</span>
       </Link>
       <NavigationMenu className="hidden lg:flex">
         <NavigationMenuList>
@@ -105,6 +110,12 @@ export default function Header() {
           </NavigationMenuLink>
         </NavigationMenuList>
       </NavigationMenu>
+      <Link className="relative" to={"/cart"}>
+        <ShoppingCart size={24} />
+        <div className="absolute bg-primary size-4 flex items-center justify-center rounded-full -right-1 -top-1">
+          <p className="text-white text-xs">{totalCart}</p>
+        </div>
+      </Link>
     </header>
   );
 }

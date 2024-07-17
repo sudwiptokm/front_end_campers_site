@@ -1,7 +1,10 @@
 "use client";
-import { ImagesSlider } from "@/components/ui/image-slider";
 import { motion } from "framer-motion";
-import BestSellingProducts from "../components/home/best-selling-product";
+
+import { ImagesSlider } from "@/components/ui/image-slider";
+
+import { Link } from "react-router-dom";
+import BestSellingProducts from "../components/home/best-selling-products";
 import FeaturedProducts from "../components/home/featured-products";
 import FrequentlyAskedQuestions from "../components/home/frequently-asked-questions";
 import ProductCategories from "../components/home/product-categories";
@@ -30,17 +33,20 @@ const Home = () => {
             Equip Your Journey <br /> Top Gear for Camping, Traveling, and
             Adventure
           </motion.p>
-          <button className="px-4 py-2 backdrop-blur-sm border bg-emerald-300/10 border-emerald-500/20 text-white mx-auto text-center rounded-full relative mt-4">
-            <span>Join now →</span>
+          <Link
+            className="px-4 py-2 backdrop-blur-sm border bg-emerald-300/10 border-emerald-500/20 text-white mx-auto text-center rounded-full relative mt-4"
+            to={"/products"}
+          >
+            <span>Explore →</span>
             <div className="absolute inset-x-0  h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-emerald-500 to-transparent" />
-          </button>
+          </Link>
         </motion.div>
       </ImagesSlider>
 
       {/* Products */}
-      <BestSellingProducts />
-      <ProductCategories />
       <FeaturedProducts />
+      <ProductCategories />
+      <BestSellingProducts />
       <VideoBlogs />
 
       {/* FAQ */}

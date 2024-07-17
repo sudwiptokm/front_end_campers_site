@@ -1,22 +1,25 @@
+import "@uploadcare/react-uploader/core.css";
+
+import { useEffect, useRef } from "react";
+
 import {
   FileUploaderRegular,
   OutputFileEntry,
   UploadCtxProvider,
 } from "@uploadcare/react-uploader";
-import "@uploadcare/react-uploader/core.css";
-import { useEffect, useRef } from "react";
+
 import { Label } from "./ui/label";
 
 type UploadcareUploaderProps = {
-  files: OutputFileEntry[];
-  setFiles: React.Dispatch<React.SetStateAction<OutputFileEntry[]>>;
+  files: string | null;
+  setFiles: (files: string | null) => void;
 };
 
 const UploadcareUploader = ({ files, setFiles }: UploadcareUploaderProps) => {
   const uploaderRef = useRef<InstanceType<UploadCtxProvider> | null>(null);
 
   const handleFileUpload = (file: OutputFileEntry) => {
-    setFiles((prevFiles) => [...prevFiles, file]);
+    setFiles(`${file.cdnUrl}${file.name}` as string);
   };
 
   useEffect(() => {
@@ -29,23 +32,21 @@ const UploadcareUploader = ({ files, setFiles }: UploadcareUploaderProps) => {
         pubkey={`${import.meta.env.VITE_UPLOADCARE_PUBLIC_KEY}`}
         apiRef={uploaderRef}
         onFileUploadSuccess={handleFileUpload}
-        onFileRemoved={(file) => {
-          setFiles((prevFiles) =>
-            prevFiles.filter((f) => f.uuid !== file.uuid)
-          );
+        onFileRemoved={() => {
+          setFiles(null);
         }}
         multiple={false}
         className="mt-2"
       />
-      <div className="img-gallery">
-        {files.map((file) => (
+      <div className="img-gallery mt-4">
+        {files && (
           <img
-            key={file.uuid}
-            src={file.cdnUrl as string}
+            key={files}
+            src={files as string}
             alt="Preview"
             className="img-preview"
           />
-        ))}
+        )}
       </div>
     </section>
   );
