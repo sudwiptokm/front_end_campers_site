@@ -16,6 +16,7 @@ export const selectAvailableToAddInCart = createSelector(
   (state: RootState) => state.cart.items,
   (items) => (id: string) => {
     const product = items.find((item) => item._id === id);
+    if (!product) return true;
     return product
       ? product.stock - product.quantity > 0
         ? true
