@@ -2,12 +2,8 @@ import { Card } from "@/components/ui/card";
 import { SVGProps } from "react";
 import { Link } from "react-router-dom";
 import { JSX } from "react/jsx-runtime";
-import { clearCart } from "../redux/features/cart/cartSlice";
-import { useAppDispatch } from "../redux/hooks";
 
 export default function OrderConfirmationPage() {
-  
-
   const searchParams = new URLSearchParams(window.location.search);
   const name = searchParams.get("name");
   const total = searchParams.get("total");

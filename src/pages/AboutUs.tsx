@@ -13,16 +13,6 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "../components/ui/separator";
 
 const AboutUs = () => {
-  const teamMembers = [
-    { name: "Jane Doe", role: "CEO", image: "/api/placeholder/100/100" },
-    { name: "John Smith", role: "CTO", image: "/api/placeholder/100/100" },
-    {
-      name: "Alice Johnson",
-      role: "Marketing Director",
-      image: "/api/placeholder/100/100",
-    },
-  ];
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold text-center mb-4">About Us</h1>

@@ -41,7 +41,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import { shallowEqual } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import UploadcareUploader from "../components/UploadcareUploader";
 import {
@@ -61,10 +60,6 @@ import { ProductTypeWithID } from "../schemas";
 
 export default function ProductManagement() {
   const products = useAppSelector((state) => state.product, shallowEqual);
-
-  console.log({ products });
-
-  const navigate = useNavigate();
 
   const [productToDelete, setProductToDelete] =
     useState<ProductTypeWithID | null>(null);
@@ -140,11 +135,6 @@ export default function ProductManagement() {
   const confirmDelete = async () => {
     if (productToDelete) {
       console.log("Deleting product:", productToDelete);
-      // Implement actual delete logic here
-      // axios.delete(
-      //   `${import.meta.env.VITE_API_URL}/api/products/${productToDelete._id}`
-      // );
-      // dispatch(removeProduct(productToDelete._id));
       confirmDeleteProduct(productToDelete._id);
     }
     setProductToDelete(null);
@@ -153,20 +143,9 @@ export default function ProductManagement() {
   const onSubmit = async (data: ProductTypeWithID) => {
     if (editingProduct) {
       console.log("Updating product:", { ...editingProduct, ...data });
-      // Implement actual update logic here
-      // axios.put(
-      //   `${import.meta.env.VITE_API_URL}/api/products/${editingProduct._id}`,
-      //   data
-      // );
-      // dispatch(updateProduct(data));
       updateExistingProduct(data);
     } else {
       console.log("Creating new product:", data);
-      // const res = await axios.post(
-      //   `${import.meta.env.VITE_API_URL}/api/products`,
-      //   data
-      // );
-      // dispatch(addProduct(res.data));
       addNewProduct(data);
     }
     setIsSheetOpen(false);

@@ -1,8 +1,6 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 
-type Props = {};
-
-const TestComponent = (props: Props) => {
+const TestComponent = () => {
   const params = useParams<{ id: string }>();
   console.log({ params });
   return <div>{params.id}</div>;
