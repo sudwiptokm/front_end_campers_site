@@ -99,7 +99,9 @@ export default function CheckoutPage() {
     if (values) {
       const queryParams = new URLSearchParams({
         name: values.name,
-        total: totalPrice.toString(),
+        total: (totalPrice <= 199.99 ? totalPrice + 9.99 : totalPrice).toFixed(
+          2
+        ),
         paymentMethod: values.paymentMethod,
       });
 
@@ -130,7 +132,7 @@ export default function CheckoutPage() {
                   <div>
                     {item.name} x {item.quantity}
                   </div>
-                  <div>${item.price * item.quantity}</div>
+                  <div>${(item.price * item.quantity).toFixed(2)}</div>
                 </div>
               ))}
               <div className="flex items-center justify-between text-sm">
