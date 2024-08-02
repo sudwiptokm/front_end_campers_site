@@ -161,7 +161,7 @@ export default function ProductManagement() {
   };
 
   return (
-    <div className="w-full px-4 md:px-6">
+    <div className="container mx-auto py-8 px-4 md:px-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Products ({products.length})</h1>
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -325,7 +325,16 @@ export default function ProductManagement() {
                     <FormItem>
                       <FormLabel>Promotion</FormLabel>
                       <FormControl>
-                        <Select {...field}>
+                        <Select
+                          onValueChange={(val) => {
+                            let value: string = val;
+                            if (val === "none") {
+                              value = "";
+                            }
+                            field.onChange(value);
+                          }}
+                          value={field.value || "none"}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Choose Promotion" />
                           </SelectTrigger>
@@ -334,6 +343,7 @@ export default function ProductManagement() {
                               Top Selling
                             </SelectItem>
                             <SelectItem value="featured">Featured</SelectItem>
+                            <SelectItem value="none">None</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormControl>

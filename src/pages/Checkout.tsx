@@ -27,17 +27,8 @@ import {
 import { clearCart } from "../redux/features/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  address1: z.string().min(1, "Address is required"),
-  address2: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  postalCode: z.string().min(1, "Postal Code is required"),
-  country: z.string().min(1, "Country is required"),
-  cardType: z.enum(["Visa", "Mastercard"], {
-    required_error: "Please select a card type",
-  }),
+const cardSchema = z.object({
+  cardType: z.enum(["Visa", "Mastercard"]),
   cardNumber: z.string().regex(/^[0-9]{16}$/, "Card Number must be 16 digits"),
   expirationDate: z
     .string()
@@ -46,8 +37,33 @@ const formSchema = z.object({
       "Expiration Date must be in MM/YY format"
     ),
   cvv: z.string().regex(/^[0-9]{3}$/, "CVV must be 3 digits"),
-  billingAddress: z.string().min(1, "Billing Address is required"),
 });
+
+const formSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    address1: z.string().min(1, "Address is required"),
+    address2: z.string().optional(),
+    city: z.string().min(1, "City is required"),
+    state: z.string().min(1, "State is required"),
+    postalCode: z.string().min(1, "Postal Code is required"),
+    country: z.string().min(1, "Country is required"),
+    billingAddress: z.string().min(1, "Billing Address is required"),
+    email: z.string().email("Invalid email address"),
+    phoneNumber: z
+      .string()
+      .regex(
+        /(^(\+88|0088)?(01){1}[3456789]{1}(\d){8})$/,
+        "Invalid phone number"
+      ),
+    paymentMethod: z.enum(["card", "cashOnDelivery"]),
+  })
+  .and(
+    z.discriminatedUnion("paymentMethod", [
+      z.object({ paymentMethod: z.literal("card"), ...cardSchema.shape }),
+      z.object({ paymentMethod: z.literal("cashOnDelivery") }),
+    ])
+  );
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -61,11 +77,14 @@ export default function CheckoutPage() {
       state: "",
       postalCode: "",
       country: "",
+      billingAddress: "",
+      email: "",
+      phoneNumber: "",
+      paymentMethod: "card",
       cardType: "Visa",
       cardNumber: "",
       expirationDate: "",
       cvv: "",
-      billingAddress: "",
     },
   });
 
@@ -78,9 +97,18 @@ export default function CheckoutPage() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     if (values) {
-      navigate(
-        `/success?name=${values.name}&total=${totalPrice}&cardNumber=${values.cardNumber}&cardType=${values.cardType}`
-      );
+      const queryParams = new URLSearchParams({
+        name: values.name,
+        total: totalPrice.toString(),
+        paymentMethod: values.paymentMethod,
+      });
+
+      if (values.paymentMethod === "card") {
+        queryParams.append("cardNumber", values.cardNumber!.slice(-4));
+        queryParams.append("cardType", values.cardType!);
+      }
+
+      navigate(`/success?${queryParams.toString()}`);
       dispatch(clearCart());
     }
   }
@@ -105,11 +133,21 @@ export default function CheckoutPage() {
                   <div>${item.price * item.quantity}</div>
                 </div>
               ))}
+              <div className="flex items-center justify-between text-sm">
+                <div>Delivery Fee</div>
+                <div>${totalPrice > 199.99 ? 0.0 : 9.99}</div>
+              </div>
             </div>
             <hr className="my-4" aria-hidden="true" />
             <div className="flex items-center justify-between font-bold">
               <div>Total: {totalItems} items</div>
-              <div>${totalPrice}</div>
+              <div>
+                $
+                {(totalPrice <= 199.99
+                  ? totalPrice + 9.99
+                  : totalPrice
+                ).toFixed(2)}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -128,6 +166,32 @@ export default function CheckoutPage() {
                       <FormLabel>Name</FormLabel>
                       <FormControl>
                         <Input placeholder="Full Name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="abc@gmail.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+8801999999999" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -220,69 +284,107 @@ export default function CheckoutPage() {
               <CardContent className="grid gap-4">
                 <FormField
                   control={form.control}
-                  name="cardType"
+                  name="paymentMethod"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Card Type</FormLabel>
+                      <FormLabel>Payment Method</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select card type" />
+                            <SelectValue placeholder="Select payment method" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Visa">Visa</SelectItem>
-                          <SelectItem value="Mastercard">Mastercard</SelectItem>
+                          <SelectItem value="card">
+                            Credit/Debit Card
+                          </SelectItem>
+                          <SelectItem value="cashOnDelivery">
+                            Cash on Delivery
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="cardNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Card Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1234 5678 9012 3456" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid gap-4 grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="expirationDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Expiration Date</FormLabel>
-                        <FormControl>
-                          <Input placeholder="MM/YY" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="cvv"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>CVV</FormLabel>
-                        <FormControl>
-                          <Input placeholder="123" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                {form.watch("paymentMethod") === "card" && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="cardType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Card Type</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select card type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Visa">Visa</SelectItem>
+                              <SelectItem value="Mastercard">
+                                Mastercard
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="cardNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Card Number</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="1234 5678 9012 3456"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid gap-4 grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="expirationDate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Expiration Date</FormLabel>
+                            <FormControl>
+                              <Input placeholder="MM/YY" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="cvv"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>CVV</FormLabel>
+                            <FormControl>
+                              <Input placeholder="123" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </>
+                )}
+
                 <FormField
                   control={form.control}
                   name="billingAddress"

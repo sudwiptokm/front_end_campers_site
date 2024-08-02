@@ -9,6 +9,7 @@ export default function OrderConfirmationPage() {
   const total = searchParams.get("total");
   const cardNumber = searchParams.get("cardNumber");
   const cardType = searchParams.get("cardType");
+  const paymentMethod = searchParams.get("paymentMethod");
 
   console.log({ name, total, cardNumber, cardType });
   return (
@@ -38,7 +39,9 @@ export default function OrderConfirmationPage() {
               Payment Method:
             </span>
             <span className="font-medium text-gray-900 dark:text-gray-50">
-              {cardType} ending in {cardNumber?.slice(-4)}
+              {paymentMethod === "card"
+                ? `${cardType} ending in ${cardNumber}`
+                : "Cash on Delivery"}
             </span>
           </div>
           <div className="flex justify-between">

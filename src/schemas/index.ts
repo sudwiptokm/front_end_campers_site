@@ -60,7 +60,7 @@ export const ProductCreateValidationSchema = z.object({
       invalid_type_error: "Product subtitle must be a string",
     })
     .optional(),
-  promotion: z.enum(["top_selling", "featured"]).optional(),
+  promotion: z.enum(["top_selling", "featured", ""]).optional(),
 });
 
 export type ProductType = z.infer<typeof ProductCreateValidationSchema>;

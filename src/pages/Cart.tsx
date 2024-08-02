@@ -39,42 +39,6 @@ import {
 } from "../redux/features/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 
-// interface CartItem {
-//   id: number;
-//   name: string;
-//   price: number;
-//   quantity: number;
-//   stock: number;
-//   image: string;
-// }
-
-// const initialCartItems: CartItem[] = [
-//   {
-//     id: 1,
-//     name: "Wireless Headphones",
-//     price: 99.99,
-//     quantity: 1,
-//     stock: 10,
-//     image: "/placeholder.svg",
-//   },
-//   {
-//     id: 2,
-//     name: "Leather Backpack",
-//     price: 79.99,
-//     quantity: 2,
-//     stock: 5,
-//     image: "/placeholder.svg",
-//   },
-//   {
-//     id: 3,
-//     name: "Smart Home Hub",
-//     price: 59.99,
-//     quantity: 1,
-//     stock: 0,
-//     image: "/placeholder.svg",
-//   },
-// ];
-
 function CartPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -95,9 +59,6 @@ function CartPage() {
 
   const confirmRemove = () => {
     if (itemToRemove) {
-      // setCartItems((items) =>
-      //   items.filter((item) => item._id !== itemToRemove._id)
-      // );
       dispatch(removeProductFromCart(itemToRemove));
       setItemToRemove(null);
     }
@@ -253,7 +214,13 @@ function CartPage() {
                 </div>
                 <div className="flex justify-between font-bold">
                   <span>Total:</span>
-                  <span>${calculateTotal().toFixed(2)}</span>
+                  <span>
+                    $
+                    {(
+                      parseFloat(calculateTotal().toFixed(2)) +
+                      (calculateTotal() > 199.99 ? 0.0 : 9.99)
+                    ).toFixed(2)}
+                  </span>
                 </div>
               </div>
             </CardContent>
